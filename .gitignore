@@ -1,0 +1,25 @@
+# OS / editors
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Node
+node_modules/
+dist/
+*.local
+*.log
+coverage/
+playwright-report/
+test-results/
+
+# .NET
+bin/
+obj/
+*.user
+TestResults/
+
+# Env
+.env
+!.env.example

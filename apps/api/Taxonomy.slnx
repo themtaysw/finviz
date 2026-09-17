@@ -1,5 +1,10 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Taxonomy.Api/Taxonomy.Api.csproj" />
+    <Project Path="src/Taxonomy.Core/Taxonomy.Core.csproj" />
+    <Project Path="src/Taxonomy.Ingest/Taxonomy.Ingest.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Taxonomy.UnitTests/Taxonomy.UnitTests.csproj" />
   </Folder>
 </Solution>

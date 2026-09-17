@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>taxonomy-ingest</AssemblyName>
+    <RootNamespace>Taxonomy.Ingest</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Taxonomy.Core\Taxonomy.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Taxonomy.UnitTests" />
+  </ItemGroup>
+
+</Project>

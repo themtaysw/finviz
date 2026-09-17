@@ -18,3 +18,19 @@ pnpm --dir apps/web dev
 API: http://localhost:5080 · Web: http://localhost:5173 (proxies `/api` to the API)
 
 Postgres is exposed on host port `5433` to avoid clashing with a local install. Override with `DB_PORT`.
+
+## Data
+
+`data/structure_released.xml` is vendored from [tzutalin/ImageNet_Utils](https://github.com/tzutalin/ImageNet_Utils/blob/master/detection_eval_tools/structure_released.xml) so the build is reproducible offline.
+
+Export it to the linear `(name, size)` form:
+
+```bash
+dotnet run --project apps/api/src/Taxonomy.Ingest -- export data/structure_released.xml linear.json
+```
+
+## Tests
+
+```bash
+dotnet test --project apps/api/tests/Taxonomy.UnitTests
+```

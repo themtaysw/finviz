@@ -10,6 +10,7 @@
 
 ```bash
 docker compose up -d --wait
+dotnet run --project apps/api/src/Taxonomy.Ingest -- load data/structure_released.xml
 dotnet run --project apps/api/src/Taxonomy.Api
 pnpm --dir apps/web install
 pnpm --dir apps/web dev
@@ -29,8 +30,12 @@ Export it to the linear `(name, size)` form:
 dotnet run --project apps/api/src/Taxonomy.Ingest -- export data/structure_released.xml linear.json
 ```
 
+`load` applies pending migrations and then replaces the stored taxonomy in a single transaction, so it is safe to re-run.
+
 ## Tests
 
 ```bash
-dotnet test --project apps/api/tests/Taxonomy.UnitTests
+dotnet test --solution apps/api/Taxonomy.slnx
 ```
+
+Integration tests start a throwaway Postgres through Testcontainers, so Docker must be running.

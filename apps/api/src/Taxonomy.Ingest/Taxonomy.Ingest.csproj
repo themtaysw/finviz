@@ -7,11 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Npgsql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Taxonomy.Core\Taxonomy.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Database\Migrations\*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="Taxonomy.UnitTests" />
+    <InternalsVisibleTo Include="Taxonomy.IntegrationTests" />
   </ItemGroup>
 
 </Project>

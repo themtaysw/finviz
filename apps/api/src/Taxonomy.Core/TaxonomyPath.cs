@@ -12,4 +12,16 @@ public static class TaxonomyPath
 
     public static bool IsValidLabel([NotNullWhen(true)] string? label) =>
         !string.IsNullOrWhiteSpace(label) && !label.Contains(Delimiter);
+
+    public static string GetLabel(string path)
+    {
+        var index = path.LastIndexOf(Separator, StringComparison.Ordinal);
+        return index < 0 ? path : path[(index + Separator.Length)..];
+    }
+
+    public static string? GetParent(string path)
+    {
+        var index = path.LastIndexOf(Separator, StringComparison.Ordinal);
+        return index < 0 ? null : path[..index];
+    }
 }

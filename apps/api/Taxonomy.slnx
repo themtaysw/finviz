@@ -5,6 +5,7 @@
     <Project Path="src/Taxonomy.Ingest/Taxonomy.Ingest.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Taxonomy.IntegrationTests/Taxonomy.IntegrationTests.csproj" />
     <Project Path="tests/Taxonomy.UnitTests/Taxonomy.UnitTests.csproj" />
   </Folder>
 </Solution>

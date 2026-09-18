@@ -4,7 +4,7 @@ using Taxonomy.Core;
 
 namespace Taxonomy.Ingest.Database;
 
-internal sealed class TaxonomyLoader(NpgsqlDataSource dataSource)
+public sealed class TaxonomyLoader(NpgsqlDataSource dataSource)
 {
     /// <summary>
     /// Replaces the whole taxonomy in a single transaction, so readers see either the old or the new data set,
@@ -21,10 +21,13 @@ internal sealed class TaxonomyLoader(NpgsqlDataSource dataSource)
         }
 
         await using (var importer = await connection.BeginBinaryImportAsync(
-            "COPY taxonomy_entry (id, parent_id, depth, label, name, size) FROM STDIN (FORMAT BINARY)",
+            "COPY taxonomy_entry (id, parent_id, depth, label, name, size, child_count) FROM STDIN (FORMAT BINARY)",
             cancellationToken))
         {
-            foreach (var record in TaxonomyRecord.FromPreorder(entries))
+            var records = TaxonomyRecord.FromPreorder(entries).ToArray();
+            var childCounts = CountChildren(records);
+
+            foreach (var record in records)
             {
                 await importer.StartRowAsync(cancellationToken);
                 await importer.WriteAsync(record.Id, NpgsqlDbType.Integer, cancellationToken);
@@ -33,6 +36,7 @@ internal sealed class TaxonomyLoader(NpgsqlDataSource dataSource)
                 await importer.WriteAsync(record.Label, NpgsqlDbType.Text, cancellationToken);
                 await importer.WriteAsync(record.Entry.Name, NpgsqlDbType.Text, cancellationToken);
                 await importer.WriteAsync(record.Entry.Size, NpgsqlDbType.Integer, cancellationToken);
+                await importer.WriteAsync(childCounts[record.Id], NpgsqlDbType.Integer, cancellationToken);
             }
 
             await importer.CompleteAsync(cancellationToken);
@@ -44,5 +48,19 @@ internal sealed class TaxonomyLoader(NpgsqlDataSource dataSource)
         }
 
         await transaction.CommitAsync(cancellationToken);
+    }
+
+    private static int[] CountChildren(TaxonomyRecord[] records)
+    {
+        var counts = new int[records.Length + 1];
+        foreach (var record in records)
+        {
+            if (record.ParentId is { } parentId)
+            {
+                counts[parentId]++;
+            }
+        }
+
+        return counts;
     }
 }

@@ -1,3 +1,4 @@
+using Npgsql;
 using Taxonomy.Ingest.Database;
 
 namespace Taxonomy.IntegrationTests.Database;
@@ -9,7 +10,7 @@ public sealed class SchemaMigratorTests(PostgresFixture postgres)
     [Fact]
     public async Task MigrateAsync_AppliesEachScriptOnlyOnce()
     {
-        await using var dataSource = await postgres.CreateDatabaseAsync();
+        await using var dataSource = NpgsqlDataSource.Create(await postgres.CreateDatabaseAsync());
         var migrator = new SchemaMigrator(dataSource);
 
         var first = await migrator.MigrateAsync(CancellationToken);
@@ -22,7 +23,7 @@ public sealed class SchemaMigratorTests(PostgresFixture postgres)
     [Fact]
     public async Task MigrateAsync_ConcurrentRunsDoNotApplyScriptsTwice()
     {
-        await using var dataSource = await postgres.CreateDatabaseAsync();
+        await using var dataSource = NpgsqlDataSource.Create(await postgres.CreateDatabaseAsync());
 
         var runs = await Task.WhenAll(
             Enumerable.Range(0, 4).Select(_ => new SchemaMigrator(dataSource).MigrateAsync(CancellationToken)));

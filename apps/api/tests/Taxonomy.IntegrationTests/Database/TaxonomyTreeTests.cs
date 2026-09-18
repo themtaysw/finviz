@@ -1,3 +1,4 @@
+using Npgsql;
 using Taxonomy.Core;
 using Taxonomy.Ingest;
 using Taxonomy.Ingest.Database;
@@ -10,7 +11,7 @@ public sealed class TaxonomyTreeTests(PostgresFixture postgres)
     public async Task TreeBuiltFromStoredRows_MatchesTreeBuiltFromSourceFile()
     {
         var cancellationToken = TestContext.Current.CancellationToken;
-        await using var dataSource = await postgres.CreateDatabaseAsync();
+        await using var dataSource = NpgsqlDataSource.Create(await postgres.CreateDatabaseAsync());
         await new SchemaMigrator(dataSource).MigrateAsync(cancellationToken);
 
         await using var xml = File.OpenRead(Path.Combine(AppContext.BaseDirectory, "TestData", "structure_released.xml"));

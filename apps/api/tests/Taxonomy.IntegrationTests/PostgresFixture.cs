@@ -15,9 +15,10 @@ public sealed class PostgresFixture : IAsyncLifetime
     public ValueTask DisposeAsync() => _container.DisposeAsync();
 
     /// <summary>
-    /// Creates an empty database on the shared server, so tests can run in parallel without seeing each other's data.
+    /// Creates an empty database on the shared server, so tests can run in parallel without seeing each other's data,
+    /// and returns its connection string.
     /// </summary>
-    public async Task<NpgsqlDataSource> CreateDatabaseAsync()
+    public async Task<string> CreateDatabaseAsync(string? applicationName = null)
     {
         var database = $"test_{Guid.NewGuid():N}";
 
@@ -27,7 +28,12 @@ public sealed class PostgresFixture : IAsyncLifetime
             await command.ExecuteNonQueryAsync(TestContext.Current.CancellationToken);
         }
 
-        var connectionString = new NpgsqlConnectionStringBuilder(_container.GetConnectionString()) { Database = database };
-        return NpgsqlDataSource.Create(connectionString.ConnectionString);
+        var connectionString = new NpgsqlConnectionStringBuilder(_container.GetConnectionString())
+        {
+            Database = database,
+            ApplicationName = applicationName ?? "tests",
+        };
+
+        return connectionString.ConnectionString;
     }
 }

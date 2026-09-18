@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/Taxonomy.Api/Taxonomy.Api.csproj" />
     <Project Path="src/Taxonomy.Core/Taxonomy.Core.csproj" />
+    <Project Path="src/Taxonomy.Ingest.Cli/Taxonomy.Ingest.Cli.csproj" />
     <Project Path="src/Taxonomy.Ingest/Taxonomy.Ingest.csproj" />
   </Folder>
   <Folder Name="/tests/">

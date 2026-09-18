@@ -3,7 +3,7 @@ using Taxonomy.Core;
 
 namespace Taxonomy.Ingest;
 
-internal static class ImageNetXmlParser
+public static class ImageNetXmlParser
 {
     private const string SynsetElement = "synset";
     private const string LabelAttribute = "words";

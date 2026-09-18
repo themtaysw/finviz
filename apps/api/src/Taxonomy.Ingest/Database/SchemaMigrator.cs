@@ -5,7 +5,7 @@ namespace Taxonomy.Ingest.Database;
 /// <summary>
 /// Applies the embedded <c>Migrations/*.sql</c> scripts in name order, each at most once.
 /// </summary>
-internal sealed class SchemaMigrator(NpgsqlDataSource dataSource)
+public sealed class SchemaMigrator(NpgsqlDataSource dataSource)
 {
     // Arbitrary, but fixed: serialises concurrent runs (e.g. overlapping deploys) across processes.
     private const long AdvisoryLockKey = 7_261_207_345_190_811;

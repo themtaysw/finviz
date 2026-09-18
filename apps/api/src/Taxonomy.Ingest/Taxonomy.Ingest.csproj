@@ -1,11 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <AssemblyName>taxonomy-ingest</AssemblyName>
-    <RootNamespace>Taxonomy.Ingest</RootNamespace>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Npgsql" />
   </ItemGroup>
@@ -16,11 +10,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Database\Migrations\*.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <InternalsVisibleTo Include="Taxonomy.UnitTests" />
-    <InternalsVisibleTo Include="Taxonomy.IntegrationTests" />
   </ItemGroup>
 
 </Project>

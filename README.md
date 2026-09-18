@@ -10,7 +10,7 @@
 
 ```bash
 docker compose up -d --wait
-dotnet run --project apps/api/src/Taxonomy.Ingest -- load data/structure_released.xml
+dotnet run --project apps/api/src/Taxonomy.Ingest.Cli -- load data/structure_released.xml
 dotnet run --project apps/api/src/Taxonomy.Api
 pnpm --dir apps/web install
 pnpm --dir apps/web dev
@@ -27,10 +27,25 @@ Postgres is exposed on host port `5433` to avoid clashing with a local install. 
 Export it to the linear `(name, size)` form:
 
 ```bash
-dotnet run --project apps/api/src/Taxonomy.Ingest -- export data/structure_released.xml linear.json
+dotnet run --project apps/api/src/Taxonomy.Ingest.Cli -- export data/structure_released.xml linear.json
 ```
 
 `load` applies pending migrations and then replaces the stored taxonomy in a single transaction, so it is safe to re-run.
+
+## API
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/nodes/roots` | Top-level nodes |
+| `GET /api/nodes/{id}` | One node with its path and ancestors, for breadcrumbs and for expanding to a search hit |
+| `GET /api/nodes/{id}/children?offset&limit&order` | One page of children, ordered by `source`, `name` or `size` |
+| `GET /api/nodes/{id}/tree?depth` | The subtree as nested nodes, built by `TaxonomyTreeBuilder` |
+| `GET /api/search?q&limit` | Label search, exact matches first, then prefixes, then shortest label |
+| `GET /api/health` | Readiness, including a database round trip |
+
+Every response carries `childCount` so a client can size a node's child list before fetching any of it. Queries run in single-digit milliseconds; the worst case measured is a single-character search matching 44k rows at ~30 ms.
+
+**Cancellation.** Every handler takes the request's cancellation token and passes it to Npgsql, so a client that disconnects also stops the query on the server. `RequestCancellationTests` proves it: it blocks a query behind an exclusive table lock, drops the request, then asks `pg_stat_activity` whether the query is gone. It runs against a real Kestrel socket on purpose - the in-memory test server tears down in-flight work by itself and would pass even if the application ignored the token.
 
 ## Rebuilding the tree
 

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>taxonomy-ingest</AssemblyName>
+    <RootNamespace>Taxonomy.Ingest.Cli</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Taxonomy.Ingest\Taxonomy.Ingest.csproj" />
+  </ItemGroup>
+
+</Project>

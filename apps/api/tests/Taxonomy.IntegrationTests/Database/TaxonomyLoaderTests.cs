@@ -50,7 +50,7 @@ public sealed class TaxonomyLoaderTests(PostgresFixture postgres)
 
     private async Task<NpgsqlDataSource> CreateMigratedDatabaseAsync()
     {
-        var dataSource = await postgres.CreateDatabaseAsync();
+        var dataSource = NpgsqlDataSource.Create(await postgres.CreateDatabaseAsync());
         await new SchemaMigrator(dataSource).MigrateAsync(CancellationToken);
         return dataSource;
     }

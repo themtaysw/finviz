@@ -7,7 +7,7 @@ namespace Taxonomy.Ingest;
 /// <see cref="Id"/> is that position (1-based), so a node's descendants are exactly the ids
 /// <c>Id + 1 .. Id + Size</c>.
 /// </summary>
-internal readonly record struct TaxonomyRecord(int Id, int? ParentId, int Depth, string Label, TaxonomyEntry Entry)
+public readonly record struct TaxonomyRecord(int Id, int? ParentId, int Depth, string Label, TaxonomyEntry Entry)
 {
     /// <summary>
     /// Numbers the entries and resolves each one's parent by subtree span rather than by path,

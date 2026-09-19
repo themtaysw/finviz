@@ -51,8 +51,11 @@ export function Tree({ selectedId, onSelect }: TreeProps) {
   const nodeAt = useRowNodes(rows, items[0]?.index ?? 0, items.at(-1)?.index ?? -1)
 
   const firstRoot = rows.length === 1 ? nodeAt(rows[0]!) : undefined
+  const openedFirstRoot = useRef(false)
   useEffect(() => {
-    if (firstRoot && firstRoot.childCount > 0) {
+    if (!firstRoot || openedFirstRoot.current) return
+    openedFirstRoot.current = true
+    if (firstRoot.childCount > 0) {
       dispatch({
         type: 'expand',
         id: firstRoot.id,

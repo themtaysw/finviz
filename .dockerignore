@@ -6,5 +6,4 @@
 **/playwright-report
 **/.vite
 .git
-.claude
 *.md

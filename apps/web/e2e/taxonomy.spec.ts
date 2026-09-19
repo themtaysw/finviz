@@ -6,6 +6,11 @@ const tree = (page: Page) => page.getByRole('tree', { name: 'Categories' })
 const searchBox = (page: Page) => page.getByRole('combobox', { name: 'Search categories' })
 const details = (page: Page) => page.getByRole('heading', { level: 2 })
 
+async function expectTopLevelLoaded(page: Page) {
+  await expect(tree(page).getByRole('treeitem', { level: 2 })).toHaveCount(9)
+  await expect(tree(page).getByRole('treeitem', { name: 'Loading' })).toHaveCount(0)
+}
+
 type NodeDetails = {
   id: number
   label: string
@@ -19,7 +24,7 @@ test('opens on the top-level categories', async ({ page }) => {
     'aria-expanded',
     'true',
   )
-  await expect(tree(page).getByRole('treeitem', { level: 2 })).toHaveCount(9)
+  await expectTopLevelLoaded(page)
   await expect(details(page)).toHaveText(ROOT)
 })
 
@@ -94,7 +99,7 @@ test('scrolls a deep link into a huge list and fetches only the pages around it'
 
 test('can be used with the keyboard alone', async ({ page }) => {
   await page.goto('/')
-  await expect(tree(page).getByRole('treeitem', { level: 2 })).toHaveCount(9)
+  await expectTopLevelLoaded(page)
 
   await page.keyboard.press('Tab')
   await expect(searchBox(page)).toBeFocused()

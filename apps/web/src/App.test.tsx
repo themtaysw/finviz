@@ -62,6 +62,19 @@ describe('taxonomy tree', () => {
     expect(await treeItem('dog')).toHaveAttribute('aria-level', '3')
   })
 
+  it('keeps the root collapsed once the user collapses it', async () => {
+    renderWithQueries(<App />)
+    await treeItem('plant')
+
+    await userEvent.click(within(await treeItem('life')).getByRole('button', { name: 'Collapse' }))
+
+    await waitFor(() =>
+      expect(screen.queryByRole('treeitem', { name: 'plant' })).not.toBeInTheDocument(),
+    )
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(await treeItem('life')).toHaveAttribute('aria-expanded', 'false')
+  })
+
   it('renders only the rows near the viewport', async () => {
     renderWithQueries(<App />)
     await expandPlant()

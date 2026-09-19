@@ -2,18 +2,8 @@ using Taxonomy.Core;
 
 namespace Taxonomy.Ingest;
 
-/// <summary>
-/// A <see cref="TaxonomyEntry"/> with the columns derived from its position in pre-order.
-/// <see cref="Id"/> is that position (1-based), so a node's descendants are exactly the ids
-/// <c>Id + 1 .. Id + Size</c>.
-/// </summary>
 public readonly record struct TaxonomyRecord(int Id, int? ParentId, int Depth, string Label, TaxonomyEntry Entry)
 {
-    /// <summary>
-    /// Numbers the entries and resolves each one's parent by subtree span rather than by path,
-    /// which keeps same-named siblings apart. O(n) time, O(depth) extra space.
-    /// </summary>
-    /// <exception cref="FormatException">The entries are not a consistent pre-order listing.</exception>
     public static IEnumerable<TaxonomyRecord> FromPreorder(IReadOnlyList<TaxonomyEntry> entries)
     {
         ArgumentNullException.ThrowIfNull(entries);

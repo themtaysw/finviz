@@ -2,12 +2,9 @@ using Npgsql;
 
 namespace Taxonomy.Ingest.Database;
 
-/// <summary>
-/// Applies the embedded <c>Migrations/*.sql</c> scripts in name order, each at most once.
-/// </summary>
 public sealed class SchemaMigrator(NpgsqlDataSource dataSource)
 {
-    // Arbitrary, but fixed: serialises concurrent runs (e.g. overlapping deploys) across processes.
+    // Serialises concurrent runs, e.g. overlapping deploys.
     private const long AdvisoryLockKey = 7_261_207_345_190_811;
 
     private const string ResourcePrefix = "Taxonomy.Ingest.Database.Migrations.";

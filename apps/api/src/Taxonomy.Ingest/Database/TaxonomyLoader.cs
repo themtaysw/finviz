@@ -6,10 +6,6 @@ namespace Taxonomy.Ingest.Database;
 
 public sealed class TaxonomyLoader(NpgsqlDataSource dataSource)
 {
-    /// <summary>
-    /// Replaces the whole taxonomy in a single transaction, so readers see either the old or the new data set,
-    /// never a partial one.
-    /// </summary>
     public async Task ReplaceAllAsync(IReadOnlyList<TaxonomyEntry> entries, CancellationToken cancellationToken)
     {
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);

@@ -137,7 +137,6 @@ public sealed class ImageNetXmlParserTests
             new TaxonomyEntry("ImageNet 2011 Fall Release > plant, flora, plant life > phytoplankton", 2),
             entries[2]);
 
-        // Paths are not unique: some parents have several children with the same label.
         Assert.Equal(60_718, entries.Select(e => e.Name).Distinct(StringComparer.Ordinal).Count());
     }
 
@@ -148,8 +147,7 @@ public sealed class ImageNetXmlParserTests
 
         var entries = ImageNetXmlParser.Parse(stream, TestContext.Current.CancellationToken);
 
-        // In pre-order a subtree is a contiguous run, so an entry's last descendant sits exactly `Size` rows later
-        // and the row after that is outside its subtree.
+        // In pre-order a subtree is a contiguous run of `Size` rows.
         for (var i = 0; i < entries.Count; i++)
         {
             var (name, size) = entries[i];

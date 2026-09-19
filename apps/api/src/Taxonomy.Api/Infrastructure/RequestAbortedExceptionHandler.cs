@@ -2,10 +2,6 @@ using Microsoft.AspNetCore.Diagnostics;
 
 namespace Taxonomy.Api.Infrastructure;
 
-/// <summary>
-/// Keeps client disconnects out of the error logs: once the caller is gone there is nothing to respond to,
-/// and the cancelled database query is expected, not a fault.
-/// </summary>
 internal sealed partial class RequestAbortedExceptionHandler(ILogger<RequestAbortedExceptionHandler> logger)
     : IExceptionHandler
 {

@@ -49,14 +49,11 @@ public sealed class TaxonomyRecordTests
 
     public static TheoryData<TaxonomyEntry[]> InconsistentListings => new()
     {
-        // Size runs past the end of the list.
         { [new("root", 2), new("root > a", 0)] },
         { [new("root", -1)] },
-        // Path does not match the containing entry.
         { [new("root", 1), new("elsewhere > a", 0)] },
         { [new("root", 1), new("second root", 0)] },
         { [new("root", 0), new("root > a", 0)] },
-        // Child subtree extends past its parent's.
         { [new("root", 2), new("root > a", 0), new("root > b", 1), new("root > b > c", 0)] },
     };
 

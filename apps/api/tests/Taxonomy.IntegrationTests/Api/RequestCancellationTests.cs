@@ -3,10 +3,6 @@ using Taxonomy.Core;
 
 namespace Taxonomy.IntegrationTests.Api;
 
-/// <summary>
-/// A request the client walks away from must not leave its query running on the server. The test blocks the query
-/// behind a table lock, cancels the request and then asks Postgres whether the query is still there.
-/// </summary>
 public sealed class RequestCancellationTests(PostgresFixture postgres) : IAsyncLifetime
 {
     private const string ApplicationName = "taxonomy-api-cancellation-tests";
@@ -76,7 +72,6 @@ public sealed class RequestCancellationTests(PostgresFixture postgres) : IAsyncL
         response.EnsureSuccessStatusCode();
     }
 
-    /// <summary>Waits until the API has exactly <paramref name="expected"/> queries running on the server.</summary>
     private async Task WaitForApiQueriesAsync(int expected, CancellationToken cancellationToken)
     {
         const string sql = """

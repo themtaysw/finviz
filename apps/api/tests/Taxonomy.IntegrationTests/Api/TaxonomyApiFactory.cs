@@ -10,20 +10,14 @@ using Taxonomy.Ingest.Database;
 
 namespace Taxonomy.IntegrationTests.Api;
 
-/// <summary>Runs the API against its own database, seeded with the given entries.</summary>
 internal sealed class TaxonomyApiFactory(string connectionString, bool useKestrel) : WebApplicationFactory<Program>
 {
     private IHost? _kestrelHost;
 
     public string ConnectionString { get; } = connectionString;
 
-    /// <summary>The address of the real server, when the factory was asked for one.</summary>
     public Uri? ServerAddress { get; private set; }
 
-    /// <remarks>
-    /// <paramref name="useKestrel"/> serves over a real socket. The in-memory test server tears down in-flight work
-    /// when a client disconnects, which hides whether the application itself propagates cancellation.
-    /// </remarks>
     public static async Task<TaxonomyApiFactory> CreateAsync(
         PostgresFixture postgres,
         IReadOnlyList<TaxonomyEntry> entries,
@@ -60,8 +54,7 @@ internal sealed class TaxonomyApiFactory(string connectionString, bool useKestre
             return base.CreateHost(builder);
         }
 
-        // WebApplicationFactory needs its in-memory host, so build that first and only then add Kestrel to the
-        // builder for a second host listening on a real port.
+        // The in-memory server cancels in-flight work when a client disconnects, which would hide an app that doesn't.
         var inMemoryHost = builder.Build();
 
         builder.ConfigureWebHost(host => host.UseKestrel().UseUrls("http://127.0.0.1:0"));

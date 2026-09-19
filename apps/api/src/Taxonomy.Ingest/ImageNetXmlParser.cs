@@ -16,13 +16,6 @@ public static class ImageNetXmlParser
         IgnoreWhitespace = true,
     };
 
-    /// <summary>
-    /// Flattens the synset hierarchy into entries in document (pre-)order.
-    /// </summary>
-    /// <remarks>
-    /// Single forward pass over the XML, O(n) time. A synset's size is its descendant count, which is only
-    /// known once its end tag is reached, so its entry is back-filled at that point.
-    /// </remarks>
     public static IReadOnlyList<TaxonomyEntry> Parse(Stream stream, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);

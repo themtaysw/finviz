@@ -45,7 +45,7 @@ internal static class TaxonomyEndpoints
         [FromQuery][Range(1, 500)] int limit = 100,
         [FromQuery] string order = "source")
     {
-        // Minimal APIs bind enums case-sensitively and fail with a 500 on anything else, so parse it here.
+        // Minimal APIs bind enums case-sensitively and answer unknown values with a 500.
         if (!Enum.TryParse<ChildOrder>(order, ignoreCase: true, out var parsed) || !Enum.IsDefined(parsed))
         {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>

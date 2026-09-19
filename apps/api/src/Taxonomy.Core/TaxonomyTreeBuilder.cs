@@ -1,13 +1,5 @@
 namespace Taxonomy.Core;
 
-/// <summary>
-/// Rebuilds a tree from entries in pre-order, the order they are stored in. The first entry becomes the root,
-/// so any contiguous slice of a subtree can be built.
-/// </summary>
-/// <remarks>
-/// Parents are resolved against a stack of open ancestors instead of a lookup by path, because paths are not
-/// unique: a child belongs to the closest preceding entry with its parent's path. O(n·L) time, O(depth) extra space.
-/// </remarks>
 public sealed class TaxonomyTreeBuilder
 {
     private readonly Stack<(string Path, List<TaxonomyNode> Children)> _open = new();
@@ -27,8 +19,6 @@ public sealed class TaxonomyTreeBuilder
         return builder.Root;
     }
 
-    /// <exception cref="FormatException">
-    /// </exception>
     public void Add(TaxonomyEntry entry)
     {
         var (path, size) = entry;

@@ -12,6 +12,27 @@ Then open http://localhost:8080. Compose starts Postgres, runs the ingest once (
 
 The app is a single image: the .NET API also serves the built React app, so there is one origin, no proxy and no CORS. The same image contains the ingest CLI and the XML, which is what a deploy runs before switching traffic.
 
+### Live
+
+https://app-production-ab35.up.railway.app
+
+Deployed on Railway as one service built from the root `Dockerfile`, plus a managed Postgres. The settings live in Railway rather than in the repo:
+
+| Setting | Value |
+| --- | --- |
+| Pre-deploy command | `dotnet /app/ingest/taxonomy-ingest.dll load /app/data/structure_released.xml` |
+| Health check | `/api/health` (includes a database round trip) |
+| `ConnectionStrings__Taxonomy` | Built from the Postgres service's `PGHOST`, `PGPORT`, … reference variables, over the private network |
+| `PORT` | `8080` |
+
+The pre-deploy step migrates and reloads the data in one transaction, so a failed load leaves the previous release serving and blocks the rollout.
+
+The end-to-end suite can run against any deployment:
+
+```bash
+E2E_BASE_URL=https://app-production-ab35.up.railway.app pnpm --dir apps/web e2e
+```
+
 ### Developing
 
 Prerequisites: Docker, .NET 10 SDK, Node 22+ with pnpm.

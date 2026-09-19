@@ -6,10 +6,18 @@
 
 .header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
   align-items: baseline;
   gap: 12px;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .header h1 {
@@ -39,6 +47,10 @@
 }
 
 @media (max-width: 760px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
   .main {
     grid-template-columns: 1fr;
     grid-template-rows: 55dvh auto;

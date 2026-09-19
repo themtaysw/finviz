@@ -40,7 +40,7 @@ dotnet run --project apps/api/src/Taxonomy.Ingest.Cli -- export data/structure_r
 | `GET /api/nodes/{id}` | One node with its path and ancestors, for breadcrumbs and for expanding to a search hit |
 | `GET /api/nodes/{id}/children?offset&limit&order` | One page of children, ordered by `source`, `name` or `size` |
 | `GET /api/nodes/{id}/tree?depth` | The subtree as nested nodes, built by `TaxonomyTreeBuilder` |
-| `GET /api/search?q&limit` | Label search, exact matches first, then prefixes, then shortest label |
+| `GET /api/search?q&limit` | Label search ranked by exact synonym, then synonym prefix, then subtree size |
 | `GET /api/health` | Readiness, including a database round trip |
 
 The OpenAPI document is written to `apps/api/openapi/taxonomy.json` on every build and committed, so a contract change shows up in review as a diff. The web client (types plus TanStack Query options and hooks) is generated from it with Orval: `pnpm --dir apps/web generate:api`, and `check:api` fails if the committed client has drifted from the spec.
@@ -58,6 +58,17 @@ The tree's shape is known before any of it is loaded. Every node carries `childC
 - **Cancelled when scrolled past.** A page that leaves the viewport before it arrives loses its last observer, TanStack Query aborts the request, and the API stops the query in Postgres.
 - **Scroll to a node without its data.** A deep link's row index comes from structure alone, so the list can scroll to it before its page is loaded.
 - **Cheap re-renders.** Rows are memoized and receive only primitives and stable callbacks, so scrolling re-renders only rows whose data changed.
+
+## Search
+
+Labels are comma-separated synonyms (`dog, domestic dog, Canis familiaris`), so ranking treats each synonym as a name: an exact synonym match first, then a synonym that starts with the query, then larger subtrees before smaller ones. Searching "dog" returns the animal before the slang for a person, which a plain "shortest label first" ranking got backwards.
+
+In the UI the search box is an ARIA combobox (arrow keys, Enter, Escape, `/` to focus):
+
+- **Debounced**, so a burst of typing sends one request.
+- **Cancelled when stale.** When the query changes while a request is in flight, TanStack Query aborts it and the API cancels the SQL.
+- **No flicker.** The previous results stay visible, dimmed, until the new ones arrive.
+- Each result shows the matched text highlighted and a short trail of its ancestors, which is what tells the four `dog, domestic dog` entries apart. Choosing one selects it and reveals it in the tree.
 
 ## Rebuilding the tree
 

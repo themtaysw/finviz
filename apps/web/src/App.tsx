@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { NodeDetails } from './details/NodeDetails'
 import { formatCount } from './lib/format'
 import { useSelectedNodeId } from './lib/useSelectedNodeId'
+import { SearchBox } from './search/SearchBox'
 import { childrenPageQuery } from './tree/childrenPageQuery'
 import { Tree } from './tree/Tree'
 import { ROOT_ID } from './tree/treeModel'
@@ -16,8 +17,11 @@ export function App() {
   return (
     <div className={styles.app}>
       <header className={styles.header}>
-        <h1>ImageNet taxonomy</h1>
-        {root && <span className={styles.subtitle}>{formatCount(root.size + 1)} categories</span>}
+        <div className={styles.brand}>
+          <h1>ImageNet taxonomy</h1>
+          {root && <span className={styles.subtitle}>{formatCount(root.size + 1)} categories</span>}
+        </div>
+        <SearchBox onSelect={select} />
       </header>
       <main className={styles.main}>
         <aside className={styles.sidebar}>

@@ -1,5 +1,10 @@
 import { http, HttpResponse } from 'msw'
-import type { NodeDetails, NodeSummary, PageOfNodeSummary } from '../api/generated/model'
+import type {
+  NodeDetails,
+  NodeSummary,
+  PageOfNodeSummary,
+  SearchMatch,
+} from '../api/generated/model'
 
 type FakeNode = NodeSummary & { parentId: number | null; children: FakeNode[] }
 
@@ -67,6 +72,33 @@ export function createFakeApi(roots: FakeTree[]) {
     }
   }
 
+  const search = (query: string, limit: number): SearchMatch[] => {
+    const needle = query.toLowerCase()
+    const rank = (node: FakeNode) => {
+      const synonyms = node.label.toLowerCase().split(', ')
+      return [
+        synonyms.includes(needle) ? 0 : 1,
+        synonyms.some((synonym) => synonym.startsWith(needle)) ? 0 : 1,
+        -node.size,
+      ]
+    }
+    const byRank = (a: FakeNode, b: FakeNode) => {
+      const [x, y] = [rank(a), rank(b)]
+      for (let i = 0; i < x.length; i++) {
+        if (x[i] !== y[i]) return x[i]! - y[i]!
+      }
+      return a.id - b.id
+    }
+    return [...nodes.values()]
+      .filter((node) => node.label.toLowerCase().includes(needle))
+      .sort(byRank)
+      .slice(0, limit)
+      .map((node) => {
+        const { path, depth } = details(node)
+        return { ...summary(node), path, depth }
+      })
+  }
+
   const find = (label: string) => [...nodes.values()].find((node) => node.label === label)!
 
   const handlers = [
@@ -78,6 +110,12 @@ export function createFakeApi(roots: FakeTree[]) {
       return node
         ? HttpResponse.json(page(node.children, new URL(request.url)))
         : new HttpResponse(null, { status: 404 })
+    }),
+    http.get('/api/search', ({ request }) => {
+      const url = new URL(request.url)
+      return HttpResponse.json(
+        search(url.searchParams.get('q') ?? '', Number(url.searchParams.get('limit') ?? 30)),
+      )
     }),
     http.get('/api/nodes/:id', ({ params }) => {
       const node = nodes.get(Number(params.id))

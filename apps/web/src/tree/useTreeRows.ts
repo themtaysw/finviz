@@ -1,11 +1,17 @@
 import { useQueries, useQuery, type UseQueryResult } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { PAGE_SIZE, ROOT_ID } from '../api/client'
-import { childrenPageQuery } from '../api/queries'
-import type { NodeSummary, Page } from '../api/types'
-import { flattenTree, pageOf, type ExpandedNodes, type TreeRow } from './treeModel'
+import type { NodeSummary, PageOfNodeSummary } from '../api/generated/model'
+import { childrenPageQuery } from './childrenPageQuery'
+import {
+  flattenTree,
+  pageOf,
+  PAGE_SIZE,
+  ROOT_ID,
+  type ExpandedNodes,
+  type TreeRow,
+} from './treeModel'
 
-const pageItems = (results: UseQueryResult<Page<NodeSummary>>[]) =>
+const pageItems = (results: UseQueryResult<PageOfNodeSummary>[]) =>
   results.map((result) => result.data?.items)
 
 export function useTreeRows(expanded: ExpandedNodes) {

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { ROOT_ID } from '../api/client'
-import type { NodeDetails } from '../api/types'
-import { flattenTree, treeReducer, type ExpandedNodes } from './treeModel'
+import type { NodeDetails } from '../api/generated/model'
+import { flattenTree, ROOT_ID, treeReducer, type ExpandedNodes } from './treeModel'
 
 const positions = (rootCount: number, expanded: ExpandedNodes) =>
   flattenTree(rootCount, expanded).rows.map(({ parentId, index, depth }) => [

@@ -1,6 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useReducer, useRef } from 'react'
-import { nodeQuery } from '../api/queries'
+import { useGetNode } from '../api/generated/taxonomy'
 import { treeReducer, type Expansion, type ExpandedNodes } from './treeModel'
 import { TreeItem } from './TreeItem'
 import { useTreeRows } from './useTreeRows'
@@ -19,9 +18,8 @@ export function Tree({ selectedId, onSelect }: TreeProps) {
   const listRef = useRef<HTMLDivElement>(null)
   const scrolledTo = useRef<number | null>(null)
 
-  const { data: selected } = useQuery({
-    ...nodeQuery(selectedId ?? 0),
-    enabled: selectedId !== null,
+  const { data: selected } = useGetNode(selectedId ?? 0, {
+    query: { enabled: selectedId !== null },
   })
 
   useEffect(() => {

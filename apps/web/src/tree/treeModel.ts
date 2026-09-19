@@ -1,5 +1,7 @@
-import { PAGE_SIZE, ROOT_ID } from '../api/client'
-import type { NodeDetails } from '../api/types'
+import type { NodeDetails } from '../api/generated/model'
+
+export const ROOT_ID = 0
+export const PAGE_SIZE = 100
 
 export type Expansion = {
   parentId: number

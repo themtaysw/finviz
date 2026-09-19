@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import type { NodeDetails, NodeSummary, Page } from '../api/types'
+import type { NodeDetails, NodeSummary, PageOfNodeSummary } from '../api/generated/model'
 
 type FakeNode = NodeSummary & { parentId: number | null; children: FakeNode[] }
 
@@ -35,7 +35,7 @@ export function createFakeApi(roots: FakeTree[]) {
   const siblingsOf = (node: FakeNode) =>
     node.parentId === null ? rootNodes : nodes.get(node.parentId)!.children
 
-  const page = (items: FakeNode[], url: URL): Page<NodeSummary> => {
+  const page = (items: FakeNode[], url: URL): PageOfNodeSummary => {
     const offset = Number(url.searchParams.get('offset') ?? 0)
     const limit = Number(url.searchParams.get('limit') ?? 100)
     const ordered =

@@ -1,6 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { largestChildrenQuery, nodeQuery } from '../api/queries'
-import type { NodeDetails as Node, NodeSummary } from '../api/types'
+import { useGetChildren, useGetNode } from '../api/generated/taxonomy'
+import type { NodeDetails as Node, NodeSummary } from '../api/generated/model'
 import { formatCount, formatPercent, splitLabel } from '../lib/format'
 import styles from './NodeDetails.module.css'
 
@@ -12,7 +11,7 @@ type NodeDetailsProps = {
 }
 
 export function NodeDetails({ id, onSelect }: NodeDetailsProps) {
-  const { data: node, error } = useQuery(nodeQuery(id))
+  const { data: node, error } = useGetNode(id)
 
   if (error) return <p className={styles.message}>Couldn’t load this category.</p>
   if (!node) return <p className={styles.message}>Loading…</p>
@@ -61,7 +60,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function LargestChildren({ node, onSelect }: { node: Node; onSelect: (id: number) => void }) {
-  const { data } = useQuery(largestChildrenQuery(node.id, LARGEST_LIMIT))
+  const { data } = useGetChildren(node.id, { order: 'size', limit: LARGEST_LIMIT })
 
   return (
     <section>

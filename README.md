@@ -43,7 +43,7 @@ dotnet run --project apps/api/src/Taxonomy.Ingest.Cli -- export data/structure_r
 | `GET /api/search?q&limit` | Label search, exact matches first, then prefixes, then shortest label |
 | `GET /api/health` | Readiness, including a database round trip |
 
-The OpenAPI document is written to `apps/api/openapi/taxonomy.json` on every build and committed, so a contract change shows up in review as a diff.
+The OpenAPI document is written to `apps/api/openapi/taxonomy.json` on every build and committed, so a contract change shows up in review as a diff. The web client (types plus TanStack Query options and hooks) is generated from it with Orval: `pnpm --dir apps/web generate:api`, and `check:api` fails if the committed client has drifted from the spec.
 
 Every response carries `childCount` so a client can size a node's child list before fetching any of it. Queries run in single-digit milliseconds; the worst case measured is a single-character search matching 44k rows at ~30 ms.
 

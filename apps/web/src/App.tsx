@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { ROOT_ID } from './api/client'
-import { childrenPageQuery } from './api/queries'
 import { NodeDetails } from './details/NodeDetails'
 import { formatCount } from './lib/format'
 import { useSelectedNodeId } from './lib/useSelectedNodeId'
+import { childrenPageQuery } from './tree/childrenPageQuery'
 import { Tree } from './tree/Tree'
+import { ROOT_ID } from './tree/treeModel'
 import styles from './App.module.css'
 
 export function App() {

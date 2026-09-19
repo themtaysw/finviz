@@ -1,5 +1,5 @@
 import { memo, type CSSProperties } from 'react'
-import type { NodeSummary } from '../api/types'
+import type { NodeSummary } from '../api/generated/model'
 import { formatCount, splitLabel } from '../lib/format'
 import type { Expansion, TreeRow } from './treeModel'
 import styles from './Tree.module.css'

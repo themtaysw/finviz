@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Taxonomy.Api.Data;
 using Taxonomy.Api.Endpoints;
 using Taxonomy.Api.Infrastructure;
@@ -12,12 +13,19 @@ builder.Services.AddSingleton<TaxonomyRepository>();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<RequestAbortedExceptionHandler>();
 builder.Services.AddValidation();
-builder.Services.AddOpenApi();
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict);
+builder.Services.AddOpenApi(OpenApiConfiguration.Configure);
 builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database");
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
+app.UseExceptionHandler(new ExceptionHandlerOptions
+{
+    StatusCodeSelector = exception => exception is BadHttpRequestException badRequest
+        ? badRequest.StatusCode
+        : StatusCodes.Status500InternalServerError,
+});
 app.MapHealthChecks("/api/health");
 app.MapTaxonomy();
 

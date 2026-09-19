@@ -43,6 +43,8 @@ dotnet run --project apps/api/src/Taxonomy.Ingest.Cli -- export data/structure_r
 | `GET /api/search?q&limit` | Label search, exact matches first, then prefixes, then shortest label |
 | `GET /api/health` | Readiness, including a database round trip |
 
+The OpenAPI document is written to `apps/api/openapi/taxonomy.json` on every build and committed, so a contract change shows up in review as a diff.
+
 Every response carries `childCount` so a client can size a node's child list before fetching any of it. Queries run in single-digit milliseconds; the worst case measured is a single-character search matching 44k rows at ~30 ms.
 
 **Cancellation.** Every handler takes the request's cancellation token and passes it to Npgsql, so a client that disconnects also stops the query on the server. `RequestCancellationTests` proves it: it blocks a query behind an exclusive table lock, drops the request, then asks `pg_stat_activity` whether the query is gone. It runs against a real Kestrel socket on purpose - the in-memory test server tears down in-flight work by itself and would pass even if the application ignored the token.

@@ -96,7 +96,7 @@ public sealed class TaxonomyEndpointsTests(PostgresFixture postgres) : IAsyncLif
     [Theory]
     [InlineData("size", new[] { "plant", "animal" })]
     [InlineData("name", new[] { "animal", "plant" })]
-    [InlineData("SOURCE", new[] { "plant", "animal" })]
+    [InlineData("source", new[] { "plant", "animal" })]
     public async Task GetChildren_Orders(string order, string[] expected)
     {
         var page = await GetAsync<Page<NodeSummary>>($"/api/nodes/1/children?order={order}");

@@ -2,6 +2,11 @@
   height: 100%;
   overflow: auto;
   contain: strict;
+  outline: none;
+}
+
+.viewport:focus .row[data-active='true'] {
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 
 .tree {
@@ -15,7 +20,7 @@
   align-items: center;
   gap: 2px;
   height: 28px;
-  padding-left: calc(8px + var(--depth) * 16px);
+  padding-left: calc(8px + var(--depth) * var(--indent, 16px));
   padding-right: 12px;
   white-space: nowrap;
 }
@@ -100,4 +105,24 @@ span.toggle {
 .message {
   padding: 16px;
   color: var(--muted);
+}
+
+.message p {
+  margin: 0 0 8px;
+}
+
+.message button {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .viewport {
+    --indent: 10px;
+  }
 }

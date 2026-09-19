@@ -57,6 +57,7 @@ The tree's shape is known before any of it is loaded. Every node carries `childC
 - **Paged by viewport.** Row content is fetched in pages of 100, and only for the pages the rendered rows fall in. Opening a deep link into `Misc` loads 3 pages instead of 24.
 - **Cancelled when scrolled past.** A page that leaves the viewport before it arrives loses its last observer, TanStack Query aborts the request, and the API stops the query in Postgres.
 - **Scroll to a node without its data.** A deep link's row index comes from structure alone, so the list can scroll to it before its page is loaded.
+- **Keyboard.** The tree follows the WAI-ARIA tree pattern: arrows, Home/End, Page Up/Down, Right to expand or step in, Left to collapse or go to the parent, Enter to select. It uses `aria-activedescendant` rather than moving focus between rows, because a focused row could be unmounted by virtualization mid-scroll.
 - **Cheap re-renders.** Rows are memoized and receive only primitives and stable callbacks, so scrolling re-renders only rows whose data changed.
 
 ## Search

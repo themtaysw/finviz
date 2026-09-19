@@ -72,13 +72,24 @@ export function rowIndexOf(rows: readonly TreeRow[], parentId: number, index: nu
   return rows.findIndex((row) => row.parentId === parentId && row.index === index)
 }
 
+export function indexRows(rows: readonly TreeRow[]) {
+  return new Map(rows.map((row, i) => [rowKey(row.parentId, row.index), i]))
+}
+
 export type TreeAction =
+  | { type: 'expand'; id: number; expansion: Expansion }
   | { type: 'toggle'; id: number; expansion: Expansion }
   | { type: 'collapse'; id: number }
   | { type: 'reveal'; node: NodeDetails }
 
 export function treeReducer(state: ExpandedNodes, action: TreeAction): ExpandedNodes {
   switch (action.type) {
+    case 'expand': {
+      if (state.has(action.id)) return state
+      const next = new Map(state)
+      next.set(action.id, action.expansion)
+      return next
+    }
     case 'toggle': {
       const next = new Map(state)
       if (!next.delete(action.id)) next.set(action.id, action.expansion)

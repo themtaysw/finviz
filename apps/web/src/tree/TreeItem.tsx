@@ -1,13 +1,15 @@
 import { memo, type CSSProperties } from 'react'
 import type { NodeSummary } from '../api/generated/model'
 import { formatCount, splitLabel } from '../lib/format'
-import type { Expansion, TreeRow } from './treeModel'
+import { rowKey, type Expansion, type TreeRow } from './treeModel'
 import styles from './Tree.module.css'
 
 type TreeItemProps = {
+  id: string
   row: TreeRow
   offset: number
   node: NodeSummary | undefined
+  isActive: boolean
   isExpanded: boolean
   isSelected: boolean
   onToggle: (id: number, expansion: Expansion) => void
@@ -15,9 +17,11 @@ type TreeItemProps = {
 }
 
 export const TreeItem = memo(function TreeItem({
+  id,
   row,
   offset,
   node,
+  isActive,
   isExpanded,
   isSelected,
   onToggle,
@@ -27,6 +31,7 @@ export const TreeItem = memo(function TreeItem({
 
   return (
     <div
+      id={id}
       role="treeitem"
       aria-label={node?.label ?? 'Loading'}
       aria-level={row.depth + 1}
@@ -35,7 +40,8 @@ export const TreeItem = memo(function TreeItem({
       aria-expanded={hasChildren ? isExpanded : undefined}
       aria-selected={isSelected}
       aria-busy={node ? undefined : true}
-      data-node-id={node?.id}
+      data-key={rowKey(row.parentId, row.index)}
+      data-active={isActive}
       className={styles.row}
       style={{ '--depth': row.depth, transform: `translateY(${offset}px)` } as CSSProperties}
     >
@@ -62,7 +68,12 @@ export const TreeItem = memo(function TreeItem({
           ) : (
             <span className={styles.toggle} />
           )}
-          <button type="button" className={styles.label} onClick={() => onSelect(node.id)}>
+          <button
+            type="button"
+            tabIndex={-1}
+            className={styles.label}
+            onClick={() => onSelect(node.id)}
+          >
             <Label text={node.label} />
           </button>
           {node.size > 0 && <span className={styles.count}>{formatCount(node.size)}</span>}

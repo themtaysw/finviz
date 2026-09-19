@@ -17,7 +17,7 @@ export function useTreeRows(expanded: ExpandedNodes) {
   const rootCount = roots.data?.total ?? 0
   const rows = useMemo(() => flattenTree(rootCount, expanded), [rootCount, expanded])
 
-  return { rows, isPending: roots.isPending, error: roots.error }
+  return { rows, isPending: roots.isPending, error: roots.error, retry: roots.refetch }
 }
 
 const pageItems = (results: UseQueryResult<PageOfNodeSummary>[]) =>

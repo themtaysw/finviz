@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useGetChildren, useGetNode } from '../api/generated/taxonomy'
 import type { NodeDetails as Node, NodeSummary } from '../api/generated/model'
 import { formatCount, formatPercent, splitLabel } from '../lib/format'
@@ -11,9 +12,25 @@ type NodeDetailsProps = {
 }
 
 export function NodeDetails({ id, onSelect }: NodeDetailsProps) {
-  const { data: node, error } = useGetNode(id)
+  const { data: node, error, refetch } = useGetNode(id)
 
-  if (error) return <p className={styles.message}>Couldn’t load this category.</p>
+  useEffect(() => {
+    if (node) document.title = `${splitLabel(node.label)[0]} · ImageNet taxonomy`
+  }, [node])
+
+  if (error?.status === 404) {
+    return <p className={styles.message}>This category doesn’t exist.</p>
+  }
+  if (error) {
+    return (
+      <div className={styles.message} role="alert">
+        <p>Couldn’t load this category.</p>
+        <button type="button" className={styles.retry} onClick={() => void refetch()}>
+          Try again
+        </button>
+      </div>
+    )
+  }
   if (!node) return <p className={styles.message}>Loading…</p>
 
   const [name, ...synonyms] = splitLabel(node.label)

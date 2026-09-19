@@ -24,12 +24,11 @@ const treeItem = async (name: string) =>
   within(await screen.findByRole('tree')).findByRole('treeitem', { name })
 
 async function expandPlant() {
-  await userEvent.click(within(await treeItem('life')).getByRole('button', { name: 'Expand' }))
   await userEvent.click(within(await treeItem('plant')).getByRole('button', { name: 'Expand' }))
 }
 
 function scrollTreeTo(row: number) {
-  screen.getByRole('tree').parentElement!.scrollTo({ top: row * 28 })
+  screen.getByRole('tree').scrollTo({ top: row * 28 })
 }
 
 function recordChildRequests({ slow = false } = {}) {
@@ -52,13 +51,15 @@ function recordChildRequests({ slow = false } = {}) {
 describe('taxonomy tree', () => {
   beforeEach(() => server.use(...api.handlers))
 
-  it('loads children when a node is expanded', async () => {
+  it('opens the root on load and loads children on expand', async () => {
     renderWithQueries(<App />)
 
-    await userEvent.click(within(await treeItem('life')).getByRole('button', { name: 'Expand' }))
-
+    expect(await treeItem('life')).toHaveAttribute('aria-expanded', 'true')
     expect(await treeItem('plant')).toHaveAttribute('aria-level', '2')
-    expect(await treeItem('animal')).toHaveAttribute('aria-posinset', '2')
+
+    await userEvent.click(within(await treeItem('animal')).getByRole('button', { name: 'Expand' }))
+
+    expect(await treeItem('dog')).toHaveAttribute('aria-level', '3')
   })
 
   it('renders only the rows near the viewport', async () => {

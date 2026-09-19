@@ -124,3 +124,17 @@
   padding: 24px 28px;
   color: var(--muted);
 }
+
+.message p {
+  margin: 0 0 8px;
+}
+
+.retry {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}

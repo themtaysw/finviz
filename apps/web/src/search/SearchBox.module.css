@@ -42,6 +42,12 @@
   display: none;
 }
 
+@media (pointer: coarse) {
+  .shortcut {
+    display: none;
+  }
+}
+
 .popover {
   position: absolute;
   z-index: 10;

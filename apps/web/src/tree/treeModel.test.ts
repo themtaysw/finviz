@@ -113,6 +113,13 @@ describe('treeReducer', () => {
     expect(treeReducer(state, { type: 'reveal', node })).toBe(state)
   })
 
+  it('expands idempotently', () => {
+    const expansion = { parentId: ROOT_ID, index: 0, childCount: 2 }
+    const opened = treeReducer(new Map(), { type: 'expand', id: 1, expansion })
+
+    expect(treeReducer(opened, { type: 'expand', id: 1, expansion })).toBe(opened)
+  })
+
   it('toggles a node open and closed', () => {
     const expansion = { parentId: ROOT_ID, index: 0, childCount: 2 }
     const opened = treeReducer(new Map(), { type: 'toggle', id: 1, expansion })

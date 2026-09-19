@@ -95,3 +95,15 @@ dotnet test --solution apps/api/Taxonomy.slnx
 ```
 
 Integration tests start a throwaway Postgres through Testcontainers, so Docker must be running.
+
+```bash
+pnpm --dir apps/web test
+```
+
+Component tests run in jsdom against an MSW fake of the API.
+
+```bash
+pnpm --dir apps/web e2e
+```
+
+End-to-end tests drive Google Chrome against the real stack: the loaded Postgres from `docker compose`, the API (started automatically if it isn't running) and the production build of the web app. They cover search, deep links into a 2,350-item list, keyboard-only use, and a search request actually being aborted in the browser when a newer query overtakes it.

@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "generate:api": "orval && prettier --write src/api/generated --log-level warn",
-    "check:api": "pnpm generate:api && test -z \"$(git status --porcelain -- src/api/generated)\""
+    "check:api": "pnpm generate:api && test -z \"$(git status --porcelain -- src/api/generated)\"",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.103.1",
@@ -23,6 +24,7 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

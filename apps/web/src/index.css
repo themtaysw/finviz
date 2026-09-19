@@ -3,6 +3,10 @@
   --fg: #16181d;
   --muted: #6b7280;
   --border: #e5e7eb;
+  --hover: #f3f4f6;
+  --selected: #e8effd;
+  --accent: #2563eb;
+  --accent-soft: #dbe6fb;
 
   font-family:
     system-ui,
@@ -23,6 +27,10 @@
     --fg: #e6e8eb;
     --muted: #9aa1ab;
     --border: #262a31;
+    --hover: #1a1d23;
+    --selected: #1c2a44;
+    --accent: #7aa7ff;
+    --accent-soft: #1e2d4a;
   }
 }
 

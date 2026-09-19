@@ -4,10 +4,6 @@ using Taxonomy.Core;
 
 namespace Taxonomy.Api.Data;
 
-/// <summary>
-/// Reads the stored taxonomy. A node's subtree is the id range <c>(id, id + size]</c>, so children and subtrees
-/// are range scans on the (depth, id) index rather than recursive queries.
-/// </summary>
 internal sealed class TaxonomyRepository(NpgsqlDataSource dataSource)
 {
     private const int MaxSubtreeRows = 10_000;
@@ -36,7 +32,7 @@ internal sealed class TaxonomyRepository(NpgsqlDataSource dataSource)
 
     public async Task<NodeDetails?> GetNodeAsync(int id, CancellationToken cancellationToken)
     {
-        // Walks up parent_id, so it touches at most `depth` rows by primary key.
+        // Siblings are the rows at the same depth between the parent and the node.
         const string sql = """
             WITH RECURSIVE chain AS (
                 SELECT id, parent_id, label, name, size, child_count, depth
@@ -47,10 +43,13 @@ internal sealed class TaxonomyRepository(NpgsqlDataSource dataSource)
                 FROM chain c
                 JOIN taxonomy_entry p ON p.id = c.parent_id
             )
-            SELECT id AS "Id", label AS "Label", name AS "Path", size AS "Size",
-                   child_count AS "ChildCount", depth::int AS "Depth"
-            FROM chain
-            ORDER BY depth
+            SELECT c.id AS "Id", c.label AS "Label", c.name AS "Path", c.size AS "Size",
+                   c.child_count AS "ChildCount", c.depth::int AS "Depth",
+                   (SELECT count(*)::int
+                    FROM taxonomy_entry s
+                    WHERE s.depth = c.depth AND s.id > coalesce(c.parent_id, 0) AND s.id < c.id) AS "Index"
+            FROM chain c
+            ORDER BY c.depth
             """;
 
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
@@ -62,9 +61,13 @@ internal sealed class TaxonomyRepository(NpgsqlDataSource dataSource)
         }
 
         var node = chain[^1];
-        var ancestors = chain.Take(chain.Count - 1).Select(row => new NodeAncestor(row.Id, row.Label)).ToArray();
+        var ancestors = chain
+            .Take(chain.Count - 1)
+            .Select(row => new NodeAncestor(row.Id, row.Label, row.Index, row.ChildCount))
+            .ToArray();
 
-        return new NodeDetails(node.Id, node.Label, node.Path, node.Size, node.ChildCount, node.Depth, ancestors);
+        return new NodeDetails(
+            node.Id, node.Label, node.Path, node.Size, node.ChildCount, node.Depth, node.Index, ancestors);
     }
 
     public async Task<Page<NodeSummary>?> GetChildrenAsync(
@@ -105,7 +108,6 @@ internal sealed class TaxonomyRepository(NpgsqlDataSource dataSource)
         int limit,
         CancellationToken cancellationToken)
     {
-        // Ranking: exact label, then prefix, then shortest label - "dog" should beat "dogtooth violet".
         const string sql = """
             SELECT id AS "Id", label AS "Label", name AS "Path", size AS "Size",
                    child_count AS "ChildCount", depth::int AS "Depth"
@@ -129,8 +131,6 @@ internal sealed class TaxonomyRepository(NpgsqlDataSource dataSource)
         return matches.AsList();
     }
 
-    /// <summary>Returns the subtree rooted at <paramref name="id"/>, or null if it has no such node.</summary>
-    /// <exception cref="SubtreeTooLargeException">The subtree exceeds the row cap at the requested depth.</exception>
     public async Task<TaxonomyNode?> GetSubtreeAsync(int id, int depth, CancellationToken cancellationToken)
     {
         const string sql = """
@@ -145,8 +145,7 @@ internal sealed class TaxonomyRepository(NpgsqlDataSource dataSource)
         var builder = new TaxonomyTreeBuilder();
         var rows = 0;
 
-        // Read with Npgsql directly: Dapper's unbuffered query takes no cancellation token, and this is the one
-        // query that can stream thousands of rows.
+        // Dapper's unbuffered query doesn't take a cancellation token.
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
         await using var command = new NpgsqlCommand(sql, connection);
         command.Parameters.AddWithValue("id", id);
@@ -182,7 +181,7 @@ internal sealed class TaxonomyRepository(NpgsqlDataSource dataSource)
     private static CommandDefinition Command(string sql, object parameters, CancellationToken cancellationToken) =>
         new(sql, parameters, cancellationToken: cancellationToken);
 
-    private sealed record NodeRow(int Id, string Label, string Path, int Size, int ChildCount, int Depth);
+    private sealed record NodeRow(int Id, string Label, string Path, int Size, int ChildCount, int Depth, int Index);
 }
 
 internal sealed class SubtreeTooLargeException(int limit)

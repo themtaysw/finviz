@@ -54,8 +54,22 @@ public sealed class TaxonomyEndpointsTests(PostgresFixture postgres) : IAsyncLif
         Assert.Equal("rudbeckia", node.Label);
         Assert.Equal("life > plant > coneflower > rudbeckia", node.Path);
         Assert.Equal(3, node.Depth);
-        Assert.Equal([new NodeAncestor(1, "life"), new NodeAncestor(2, "plant"), new NodeAncestor(4, "coneflower")],
+        Assert.Equal(0, node.Index);
+        Assert.Equal(
+            [new NodeAncestor(1, "life", 0, 2), new NodeAncestor(2, "plant", 0, 2), new NodeAncestor(4, "coneflower", 1, 1)],
             node.Ancestors);
+    }
+
+    [Theory]
+    [InlineData(1, 0)]
+    [InlineData(4, 1)]
+    [InlineData(6, 1)]
+    [InlineData(7, 0)]
+    public async Task GetNode_ReportsPositionAmongSiblings(int id, int index)
+    {
+        var node = await GetAsync<NodeDetails>($"/api/nodes/{id}");
+
+        Assert.Equal(index, node.Index);
     }
 
     [Fact]

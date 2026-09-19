@@ -1,7 +1,32 @@
+import { useQuery } from '@tanstack/react-query'
+import { ROOT_ID } from './api/client'
+import { childrenPageQuery } from './api/queries'
+import { NodeDetails } from './details/NodeDetails'
+import { formatCount } from './lib/format'
+import { useSelectedNodeId } from './lib/useSelectedNodeId'
+import { Tree } from './tree/Tree'
+import styles from './App.module.css'
+
 export function App() {
+  const [selectedId, select] = useSelectedNodeId()
+  const { data: roots } = useQuery(childrenPageQuery(ROOT_ID, 0))
+  const root = roots?.items[0]
+  const shownId = selectedId ?? root?.id
+
   return (
-    <main>
-      <h1>ImageNet Taxonomy</h1>
-    </main>
+    <div className={styles.app}>
+      <header className={styles.header}>
+        <h1>ImageNet taxonomy</h1>
+        {root && <span className={styles.subtitle}>{formatCount(root.size + 1)} categories</span>}
+      </header>
+      <main className={styles.main}>
+        <aside className={styles.sidebar}>
+          <Tree selectedId={selectedId} onSelect={select} />
+        </aside>
+        <section className={styles.content}>
+          {shownId !== undefined && <NodeDetails id={shownId} onSelect={select} />}
+        </section>
+      </main>
+    </div>
   )
 }

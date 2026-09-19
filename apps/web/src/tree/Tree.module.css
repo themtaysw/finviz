@@ -1,0 +1,97 @@
+.tree {
+  height: 100%;
+  overflow: auto;
+  padding: 4px 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  padding-left: calc(8px + var(--depth) * 16px);
+  padding-right: 12px;
+  white-space: nowrap;
+}
+
+.row:hover {
+  background: var(--hover);
+}
+
+.row[aria-selected='true'] {
+  background: var(--selected);
+}
+
+.toggle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+span.toggle {
+  cursor: default;
+}
+
+.toggle svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  transition: transform 120ms ease;
+}
+
+.toggle svg[data-expanded='true'] {
+  transform: rotate(90deg);
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 2px 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.label > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.synonyms {
+  color: var(--muted);
+}
+
+.count {
+  flex: none;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+.placeholder {
+  height: 10px;
+  width: 40%;
+  margin-left: 26px;
+  border-radius: 4px;
+  background: var(--border);
+}
+
+.message {
+  padding: 16px;
+  color: var(--muted);
+}

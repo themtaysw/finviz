@@ -113,10 +113,10 @@ internal sealed class TaxonomyRepository(NpgsqlDataSource dataSource)
                    child_count AS "ChildCount", depth::int AS "Depth"
             FROM taxonomy_entry
             WHERE label ILIKE @contains
-            ORDER BY lower(label) = lower(@query) DESC,
-                     label ILIKE @startsWith DESC,
-                     length(label),
+            ORDER BY lower(@query) = ANY (string_to_array(lower(label), ', ')) DESC,
+                     (label ILIKE @startsWith OR label ILIKE @synonymStartsWith) DESC,
                      size DESC,
+                     length(label),
                      id
             LIMIT @limit
             """;
@@ -125,7 +125,14 @@ internal sealed class TaxonomyRepository(NpgsqlDataSource dataSource)
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
         var matches = await connection.QueryAsync<SearchMatch>(Command(
             sql,
-            new { query, contains = $"%{escaped}%", startsWith = $"{escaped}%", limit },
+            new
+            {
+                query,
+                contains = $"%{escaped}%",
+                startsWith = $"{escaped}%",
+                synonymStartsWith = $"%, {escaped}%",
+                limit,
+            },
             cancellationToken));
 
         return matches.AsList();

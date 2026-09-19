@@ -6,6 +6,7 @@ import styles from './Tree.module.css'
 
 type TreeItemProps = {
   row: TreeRow
+  offset: number
   node: NodeSummary | undefined
   isExpanded: boolean
   isSelected: boolean
@@ -15,6 +16,7 @@ type TreeItemProps = {
 
 export const TreeItem = memo(function TreeItem({
   row,
+  offset,
   node,
   isExpanded,
   isSelected,
@@ -35,7 +37,7 @@ export const TreeItem = memo(function TreeItem({
       aria-busy={node ? undefined : true}
       data-node-id={node?.id}
       className={styles.row}
-      style={{ '--depth': row.depth } as CSSProperties}
+      style={{ '--depth': row.depth, transform: `translateY(${offset}px)` } as CSSProperties}
     >
       {node ? (
         <>

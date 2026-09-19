@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import type { NodeDetails } from '../api/generated/model'
-import { flattenTree, ROOT_ID, treeReducer, type ExpandedNodes } from './treeModel'
+import {
+  flattenTree,
+  pagesFor,
+  ROOT_ID,
+  rowIndexOf,
+  treeReducer,
+  type ExpandedNodes,
+} from './treeModel'
 
 const positions = (rootCount: number, expanded: ExpandedNodes) =>
-  flattenTree(rootCount, expanded).rows.map(({ parentId, index, depth }) => [
-    parentId,
-    index,
-    depth,
-  ])
+  flattenTree(rootCount, expanded).map(({ parentId, index, depth }) => [parentId, index, depth])
 
 describe('flattenTree', () => {
   it('lists only roots when nothing is expanded', () => {
@@ -37,16 +40,44 @@ describe('flattenTree', () => {
 
     expect(positions(1, expanded)).toEqual([[ROOT_ID, 0, 0]])
   })
+})
 
-  it('reports every open parent so their pages can be loaded', () => {
+describe('pagesFor', () => {
+  const expanded: ExpandedNodes = new Map([[10, { parentId: ROOT_ID, index: 0, childCount: 250 }]])
+  const rows = flattenTree(2, expanded)
+
+  it('asks only for the pages that hold the given rows', () => {
+    expect(pagesFor(rows, 150, 160)).toEqual([{ parentId: 10, page: 1 }])
+  })
+
+  it('spans a page boundary and a change of parent', () => {
+    expect(pagesFor(rows, 0, 2)).toEqual([
+      { parentId: ROOT_ID, page: 0 },
+      { parentId: 10, page: 0 },
+    ])
+    expect(pagesFor(rows, 200, 251)).toEqual([
+      { parentId: 10, page: 1 },
+      { parentId: 10, page: 2 },
+      { parentId: ROOT_ID, page: 0 },
+    ])
+  })
+
+  it('clamps the range to the rows that exist', () => {
+    expect(pagesFor(rows, -5, 0)).toEqual([{ parentId: ROOT_ID, page: 0 }])
+    expect(pagesFor([], 0, -1)).toEqual([])
+  })
+})
+
+describe('rowIndexOf', () => {
+  it('finds a row by its parent and position without any loaded data', () => {
     const expanded: ExpandedNodes = new Map([
-      [10, { parentId: ROOT_ID, index: 0, childCount: 250 }],
+      [10, { parentId: ROOT_ID, index: 1, childCount: 2350 }],
     ])
+    const rows = flattenTree(3, expanded)
 
-    expect(flattenTree(1, expanded).openParents).toEqual([
-      { id: ROOT_ID, childCount: 1 },
-      { id: 10, childCount: 250 },
-    ])
+    expect(rowIndexOf(rows, 10, 2349)).toBe(2351)
+    expect(rowIndexOf(rows, ROOT_ID, 2)).toBe(2352)
+    expect(rowIndexOf(rows, 99, 0)).toBe(-1)
   })
 })
 

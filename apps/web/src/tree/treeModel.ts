@@ -18,10 +18,9 @@ export type TreeRow = {
   siblingCount: number
 }
 
-export type OpenParent = {
-  id: number
-  childCount: number
-}
+export const pageOf = (index: number) => Math.floor(index / PAGE_SIZE)
+
+export const rowKey = (parentId: number, index: number) => `${parentId}:${index}`
 
 export function flattenTree(rootCount: number, expanded: ExpandedNodes) {
   const openChildren = new Map<number, Map<number, number>>()
@@ -35,10 +34,8 @@ export function flattenTree(rootCount: number, expanded: ExpandedNodes) {
   }
 
   const rows: TreeRow[] = []
-  const openParents: OpenParent[] = []
 
   const visit = (parentId: number, childCount: number, depth: number) => {
-    openParents.push({ id: parentId, childCount })
     const open = openChildren.get(parentId)
 
     for (let index = 0; index < childCount; index++) {
@@ -53,12 +50,27 @@ export function flattenTree(rootCount: number, expanded: ExpandedNodes) {
   }
 
   visit(ROOT_ID, rootCount, 0)
-  return { rows, openParents }
+  return rows
 }
 
-export const pageOf = (index: number) => Math.floor(index / PAGE_SIZE)
+export type PageRef = {
+  parentId: number
+  page: number
+}
 
-export const rowKey = (parentId: number, index: number) => `${parentId}:${index}`
+export function pagesFor(rows: readonly TreeRow[], start: number, end: number): PageRef[] {
+  const pages = new Map<string, PageRef>()
+  for (let i = Math.max(start, 0); i <= Math.min(end, rows.length - 1); i++) {
+    const { parentId, index } = rows[i]!
+    const page = pageOf(index)
+    pages.set(`${parentId}:${page}`, { parentId, page })
+  }
+  return [...pages.values()]
+}
+
+export function rowIndexOf(rows: readonly TreeRow[], parentId: number, index: number) {
+  return rows.findIndex((row) => row.parentId === parentId && row.index === index)
+}
 
 export type TreeAction =
   | { type: 'toggle'; id: number; expansion: Expansion }

@@ -49,6 +49,16 @@ Every response carries `childCount` so a client can size a node's child list bef
 
 **Cancellation.** Every handler takes the request's cancellation token and passes it to Npgsql, so a client that disconnects also stops the query on the server. `RequestCancellationTests` proves it: it blocks a query behind an exclusive table lock, drops the request, then asks `pg_stat_activity` whether the query is gone. It runs against a real Kestrel socket on purpose - the in-memory test server tears down in-flight work by itself and would pass even if the application ignored the token.
 
+## Rendering the tree
+
+The tree's shape is known before any of it is loaded. Every node carries `childCount`, and the client only remembers which nodes are expanded (with their position among their siblings). From that alone it computes the full list of visible rows: a parent, a position and a depth per row.
+
+- **Virtualized.** Only the rows in and around the viewport are in the DOM, about 45, whether a node has 3 children or 2,350.
+- **Paged by viewport.** Row content is fetched in pages of 100, and only for the pages the rendered rows fall in. Opening a deep link into `Misc` loads 3 pages instead of 24.
+- **Cancelled when scrolled past.** A page that leaves the viewport before it arrives loses its last observer, TanStack Query aborts the request, and the API stops the query in Postgres.
+- **Scroll to a node without its data.** A deep link's row index comes from structure alone, so the list can scroll to it before its page is loaded.
+- **Cheap re-renders.** Rows are memoized and receive only primitives and stable callbacks, so scrolling re-renders only rows whose data changed.
+
 ## Rebuilding the tree
 
 `TaxonomyTreeBuilder` (`apps/api/src/Taxonomy.Core`) turns rows read from the database, ordered by `id`, back into a tree.

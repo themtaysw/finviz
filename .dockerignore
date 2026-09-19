@@ -1,0 +1,10 @@
+**/node_modules
+**/bin
+**/obj
+**/dist
+**/test-results
+**/playwright-report
+**/.vite
+.git
+.claude
+*.md

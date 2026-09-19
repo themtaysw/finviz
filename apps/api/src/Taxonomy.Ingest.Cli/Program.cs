@@ -94,7 +94,11 @@ static async Task<IReadOnlyList<TaxonomyEntry>> ParseAsync(string source, Cancel
     return entries;
 }
 
-static NpgsqlDataSource CreateDataSource() =>
-    NpgsqlDataSource.Create(
+static NpgsqlDataSource CreateDataSource()
+{
+    var builder = new NpgsqlDataSourceBuilder(
         Environment.GetEnvironmentVariable("ConnectionStrings__Taxonomy")
         ?? "Host=localhost;Port=5433;Database=taxonomy;Username=taxonomy;Password=taxonomy");
+    builder.ConnectionStringBuilder.GssEncryptionMode = GssEncryptionMode.Disable;
+    return builder.Build();
+}

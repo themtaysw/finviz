@@ -1,22 +1,30 @@
 # ImageNet Taxonomy Explorer
 
-## Prerequisites
+## Running it
 
-- Docker
-- .NET 10 SDK
-- Node 22+ and pnpm
-
-## Running locally
+The whole stack in Docker:
 
 ```bash
-docker compose up -d --wait
+docker compose up --build
+```
+
+Then open http://localhost:8080. Compose starts Postgres, runs the ingest once (migrations plus loading the XML, about a second) and starts the app only after that succeeded.
+
+The app is a single image: the .NET API also serves the built React app, so there is one origin, no proxy and no CORS. The same image contains the ingest CLI and the XML, which is what a deploy runs before switching traffic.
+
+### Developing
+
+Prerequisites: Docker, .NET 10 SDK, Node 22+ with pnpm.
+
+```bash
+docker compose up -d --wait db
 dotnet run --project apps/api/src/Taxonomy.Ingest.Cli -- load data/structure_released.xml
 dotnet run --project apps/api/src/Taxonomy.Api
 pnpm --dir apps/web install
 pnpm --dir apps/web dev
 ```
 
-API: http://localhost:5080 · Web: http://localhost:5173 (proxies `/api` to the API)
+API: http://localhost:5080 · Web with hot reload: http://localhost:5173 (proxies `/api` to the API)
 
 Postgres is exposed on host port `5433` to avoid clashing with a local install. Override with `DB_PORT`.
 
